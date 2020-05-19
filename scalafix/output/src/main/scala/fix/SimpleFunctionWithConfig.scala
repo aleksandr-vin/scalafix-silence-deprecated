@@ -1,12 +1,6 @@
-/*
-rule = ScalafixSilenceDeprecated
-ScalafixSilenceDeprecated.since = [
-  xxx-lib 1.2.3
-]
-*/
 package fix
 
-object SimpleFunction {
+object SimpleFunctionWithConfig {
 
   @deprecated("Foo is bad", "xxx-lib 1.2.3")
   trait Foo {}
@@ -17,7 +11,7 @@ object SimpleFunction {
   @deprecated("Bar is bad", "xxx-lib 1.2.3")
   case class Bar(s: String)
 
-  @deprecated("BarO is bad", "xxx-lib 1.2.3")
+  @deprecated("BarO is bad", "zzz-lib 1.2.3")
   object BarO {}
 
   /**
@@ -25,7 +19,8 @@ object SimpleFunction {
    */
   def some(): Unit = {
     val x = Bar("xx")
-    val s = BarO
+    // @silence("deprecated") // since zzz-lib 1.2.3
+val s = BarO
     val z = Unit
   }
 

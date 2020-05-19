@@ -1,5 +1,8 @@
 /*
 rule = ScalafixSilenceDeprecated
+ScalafixSilenceDeprecated.since = [
+  xxx-lib 1.2.3
+]
 */
 package fix
 

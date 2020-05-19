@@ -14,10 +14,12 @@ object DummyClass {
   @deprecated("BarO is bad", "xxx-lib 1.2.3")
   object BarO {}
 
+  trait Base
+
   // xxx
   // TODO: not supported yet
   class Dummy
-    extends Any
+    extends Base
       with Foo
       with FooS {}
 
