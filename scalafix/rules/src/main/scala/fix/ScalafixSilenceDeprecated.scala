@@ -3,9 +3,10 @@ package fix
 import metaconfig.Configured
 import scalafix.v1._
 
-import scala.meta._
+import scala.meta.{Position, _}
+import scala.meta.inputs.Input.{File, VirtualFile}
 
-case class ScalafixSilenceDeprecatedConfig(since: List[String] = List.empty) {
+case class ScalafixSilenceDeprecatedConfig(since: List[String] = List.empty, debug: Boolean = false, quiet: Boolean = false) {
   def isSince: Any => Boolean = since.contains _
 }
 
@@ -30,9 +31,11 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
 
   override def fix(implicit doc: SemanticDocument): Patch = {
 
-    println("Tree.syntax: " + doc.tree.syntax)
-    println("Tree.structure: " + doc.tree.structure)
-    println("Tree.structureLabeled: " + doc.tree.structureLabeled)
+    if (config.debug) {
+      println("Tree.syntax: " + doc.tree.syntax)
+      println("Tree.structure: " + doc.tree.structure)
+      println("Tree.structureLabeled: " + doc.tree.structureLabeled)
+    }
 
     val deprecatedTerms = doc.tree.collect {
       case t @ Defn.Trait(Mod.Annot(Init(Type.Name("deprecated"), _, List(List(_, Lit.String(deprecatedSince))))) :: _, name, _, _, _) if config.isSince(deprecatedSince) => (t, deprecatedSince)
@@ -40,7 +43,9 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
       case t @ Defn.Object(Mod.Annot(Init(Type.Name("deprecated"), _, List(List(_, Lit.String(deprecatedSince))))) :: _, name, _) if config.isSince(deprecatedSince) => (t, deprecatedSince)
     }
 
-    println("Deprecated terms: " + deprecatedTerms)
+    if (config.debug) {
+      println("Deprecated: " + deprecatedTerms)
+    }
 
     def getDeprecatedType(t: Type): List[String] = {
       t match {
@@ -60,10 +65,24 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
       }.flatten
     }
 
+    def describe: Any => String = {
+      case VirtualFile(path, _) => path
+      case File(path: AbsolutePath, _) => path.toString
+      case pos: Position =>
+        List(
+          describe(pos.input),
+          s"${pos.startLine}"
+        ).mkString(":")
+    }
+
     doc.tree.collect {
       case t @ Defn.Val(_,_,_,rhs) =>
         getDeprecatedCall(rhs) match {
-          case since :: _ => Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
+          case since :: _ =>
+            if (!config.quiet) {
+              println(s"Silencing ${describe(t.pos)}: $since")
+            }
+            Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
           case List() => Patch.empty
         }
 
@@ -75,7 +94,11 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
       decltpe @ Some(tpe),
       body) =>
         getDeprecatedType(tpe) match {
-          case since :: _ => Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
+          case since :: _ =>
+            if (!config.quiet) {
+              println(s"Silencing ${describe(t.pos)}: $since")
+            }
+            Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
           case List() => Patch.empty
         }
 
