@@ -82,7 +82,7 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
             if (!config.quiet) {
               println(s"Silencing ${describe(t.pos)}: $since")
             }
-            Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
+            Patch.addLeft(t, s"""@silence("deprecated") // since $since\n""")
           case List() => Patch.empty
         }
 
@@ -98,7 +98,7 @@ class ScalafixSilenceDeprecated(config: ScalafixSilenceDeprecatedConfig) extends
             if (!config.quiet) {
               println(s"Silencing ${describe(t.pos)}: $since")
             }
-            Patch.addLeft(t, s"""// @silence("deprecated") // since $since\n""")
+            Patch.addLeft(t, s"""@silence("deprecated") // since $since\n""")
           case List() => Patch.empty
         }
 

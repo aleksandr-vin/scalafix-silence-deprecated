@@ -1,6 +1,6 @@
 package fix
 
-object SimpleFunction {
+object SimpleFunctionWithConfig {
 
   @deprecated("Foo is bad", "xxx-lib 1.2.3")
   trait Foo {}
@@ -11,22 +11,20 @@ object SimpleFunction {
   @deprecated("Bar is bad", "xxx-lib 1.2.3")
   case class Bar(s: String)
 
-  @deprecated("BarO is bad", "xxx-lib 1.2.3")
+  @deprecated("BarO is bad", "zzz-lib 1.2.3")
   object BarO {}
 
   /**
    * Docs
    */
   def some(): Unit = {
-    // @silence("deprecated") // since xxx-lib 1.2.3
-val x = Bar("xx")
-    // @silence("deprecated") // since xxx-lib 1.2.3
+    val x = Bar("xx")
+    @silence("deprecated") // since zzz-lib 1.2.3
 val s = BarO
     val z = Unit
   }
 
-  // @silence("deprecated") // since xxx-lib 1.2.3
-def foo1: Bar = {
+  def foo1: Bar = {
     Bar("xxxx")
   }
 }

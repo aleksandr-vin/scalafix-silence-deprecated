@@ -1,1 +1,0 @@
-# scalafix-silence-deprecated

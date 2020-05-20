@@ -14,7 +14,7 @@ object ComplexFunction {
   @deprecated("BarO is bad", "xxx-lib 1.2.3")
   object BarO {}
 
-  // @silence("deprecated") // since xxx-lib 1.2.3
+  @silence("deprecated") // since xxx-lib 1.2.3
 def foo1: Option[Bar] = {
     Some(Bar("xxxx"))
   }
